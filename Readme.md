@@ -85,3 +85,31 @@ cmake --build cmake-build-debug -t inno
 this will create the two files `inno.cpython-312-x86_64-linux-gnu.so` and
 `libprocessor.so`, that will need to be put in the correct place for python to
 find them.
+
+### Building a python wheel
+Since the project contains a pyproject toml, any build method should be doable, however it is recommended to use uv
+
+Building the wheel using manylinux may be complicated by the fact that the conan package must be available in the local
+cache, but if you just create a new environment the compilation should succeed.
+
+To build the package you should be able to just:
+```shell
+uv build
+```
+
+This should create a wheel in a `dist` folder (along with a zip file that is not needed).
+
+The wheel should be compatible with the machine the wheel was built for and newer.
+If you need an older version supported, you must build using an older system or docker,
+remember to rebuild the inno_client_sdk package in the same docker instance if doing this.
+
+In order to get the package set up for redistribution the `auditwheel` should be used, this may have to be installed
+
+```shell
+uv pip install auditwheel
+uv pip install patchelf
+auditwheel repair dist/*.whl
+```
+
+For more information on why this is needed, check out the scikit-build-core
+[documentation](https://scikit-build-core.readthedocs.io/en/stable/guide/build.html#repairing).
